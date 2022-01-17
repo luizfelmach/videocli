@@ -1,6 +1,7 @@
 import os
 import cv2
 import PIL
+import ascii_magic
 from PIL import Image
 from glob import glob
 from math import floor
@@ -24,45 +25,16 @@ class Video:
       success,image = videoCapture.read()
       print(f'[GET FRAMES] frame-{frame}.jpg')
       frame += 1
-
-  def resizeFrames(self):
-    frames = glob(f'{self.outputPath}/*')
-    for frame in frames:
-      frameIterator = Image.open(frame)
-      width, height = frameIterator.size
-      ratio = width / height
-      newHeight = int(self.dimensionsTerminal[0])
-      newWidth = floor(ratio * newHeight)
-      frameResized = frameIterator.resize((newWidth, newHeight))
-      print(f'[RESIZE FRAMES] {frame}')
-      frameResized.save(frame)
-
-  def getColorFrames(self):
-    frames = glob(f'{self.outputPath}/*')
-    for frame in frames:
-      frameIterator = Image.open(frame)
-      pixelsColor = frameIterator.load()
-      print(f'[GET COLOR FRAMES] {frame}')
-      self.framesPixel.append(pixelsColor)
-
-  def printFrames(self):
-    os.system('clear')
+  
+  def convertToAscii(self):
     row, column = self.dimensionsTerminal
-    # print(row, column)
-    # print(self.framesPixel[0][59,33])
-    countFrames = 0
-    for frame in self.framesPixel:
-      for r in range(int(row)):
-        for c in range(60):
-          rgb = frame[c, r]
-          print("\033[38;2;{};{};{}m{} \033[38;2;255;255;255m".format(rgb[0], rgb[1], rgb[2], self.char), end='', flush=True)
-      os.system('clear')
-      if (countFrames % 30 == 0):
-        sleep(1)
-      countFrames += 1
+    frames = glob(f'{self.outputPath}/*')
+    for frame in frames:
+     myart = ascii_magic.from_image_file(frame, columns=int(column), back=ascii_magic.Back.BLACK)
+     ascii_magic.to_terminal(myart)
+     sleep(0.01)
+     os.system('clear')
 
-a = Video('videoPath')
+a = Video(videoPath)
 a.getFrames()
-a.resizeFrames()
-a.getColorFrames()
-a.printFrames()
+a.convertToAscii()
