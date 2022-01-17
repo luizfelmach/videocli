@@ -23,17 +23,20 @@ class Video:
     while success:
       cv2.imwrite(f'./data/frame-{frame}.jpg', image)      
       success,image = videoCapture.read()
-      print(f'[GET FRAMES] frame-{frame}.jpg')
+      print(f'[GET FRAMES] frame-{frame}.jpg \033[F')
       frame += 1
   
   def convertToAscii(self):
     row, column = self.dimensionsTerminal
+    charsToLinePrevious = '\033[F'*int(row)
     frames = glob(f'{self.outputPath}/*')
-    for frame in frames:
-     myart = ascii_magic.from_image_file(frame, columns=int(column), back=ascii_magic.Back.BLACK)
-     ascii_magic.to_terminal(myart)
-     sleep(0.01)
-     os.system('clear')
+    for i in range(len(frames)):
+      frameName = f'{self.outputPath}/frame-{i+1}.jpg'
+      myart = ascii_magic.from_image_file(frameName, columns=int(column), back=ascii_magic.Back.BLACK)
+      ascii_magic.to_terminal(myart)
+      print(f'{charsToLinePrevious}')
+
+videoPath = './example/example.mp4'
 
 a = Video(videoPath)
 a.getFrames()
